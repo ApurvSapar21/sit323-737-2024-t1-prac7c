@@ -16,8 +16,9 @@ app.get('/', (req, res) => {
 app.post('/calculate', (req, res) => {
     const { num1, num2, operation } = req.body;
 
-    if (!num1 || !num2 || !operation) {
-        return res.status(400).send('Invalid input. Please provide all required fields.');
+    // Check if num1 and num2 are valid numbers
+    if (isNaN(parseFloat(num1)) || isNaN(parseFloat(num2))) {
+        return res.status(400).send('Invalid input. Please provide valid numbers.');
     }
 
     let result;
@@ -37,11 +38,24 @@ app.post('/calculate', (req, res) => {
             }
             result = parseFloat(num1) / parseFloat(num2);
             break;
+        // Additional operations
+        case 'power':
+            result = Math.pow(parseFloat(num1), parseFloat(num2));
+            break;
+        case 'modulus':
+            result = parseFloat(num1) % parseFloat(num2);
+            break;
         default:
             return res.status(400).send('Invalid operation.');
     }
 
     res.send(`Result: ${num1} ${operation} ${num2} = ${result}`);
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something went wrong!');
 });
 
 // Start the server
